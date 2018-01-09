@@ -13,13 +13,13 @@ class SchemaApi
         $this->schema = new SchemaReader(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'schema.jsonld');
         $this->validator = new SchemaValidator($this->schema);
         try {
-            $this->db = new \PDO('sqlite:../../data.db;charset=utf8');
+            $this->db = new \PDO('sqlite:../../data.db');
             $this->db->exec("CREATE TABLE IF NOT EXISTS objects (
                         id INTEGER PRIMARY KEY, 
                         type TEXT NOT NULL, 
                         data TEXT NOT NULL)");
         } catch(PDOException  $e) {
-            // TODO
+            echo $e->getMessage();
         }
     }
 
@@ -43,7 +43,7 @@ class SchemaApi
 
     public function findEntities($type)
     {
-        $sql = "SELECT id, LENGHT(data) FROM objects WHERE type = '$type'";
+        $sql = "SELECT id, LENGTH(data) AS size FROM objects WHERE type = '$type'";
         return $this->db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
     }
 

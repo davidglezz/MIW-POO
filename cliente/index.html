@@ -15,7 +15,7 @@
 <body>
     <div class="container">
         <header class="header clearfix">
-            <nav>
+            <!--<nav>
                 <ul class="nav nav-pills float-right">
                     <li class="nav-item">
                         <a class="nav-link active" href="#">Home
@@ -29,12 +29,13 @@
                         <a class="nav-link" href="#">Contact</a>
                     </li>
                 </ul>
-            </nav>
+            </nav>-->
             <h1>Schema DB</h1>
         </header>
 
-        <main id="summary" hidden>
-
+        <main id="summary">
+            <h2>Entidades <button type="button" id="add" class="btn btn-primary float-right">Añadir</button></h2>
+            <p>Resumen de todos los objetos almacenados.</p>
             <table class="table">
                 <thead>
                     <tr>
@@ -49,8 +50,7 @@
         </main>
 
         <main id="entity" hidden>
-
-            <table class="table" id="summary">
+            <table class="table">
                 <thead>
                     <tr>
                         <th scope="col">Id</th>
@@ -64,7 +64,7 @@
 
         </main>
 
-        <main id="edit">
+        <main id="edit" hidden>
             <form>
                 <div class="form-group">
                     <label for="obj_type">Entidad</label>
