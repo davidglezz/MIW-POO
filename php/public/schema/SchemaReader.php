@@ -26,7 +26,7 @@ class SchemaReader
         $this->graph = array_combine(array_column($data['@graph'], '@id'), $data['@graph']);
     }
 
-    function get(string $id)
+    public function get(string $id)
     {
         return isset($this->graph[$id]) ? $this->graph[$id] : null;
     }
@@ -58,5 +58,16 @@ class SchemaReader
             $classes = array_merge($classes, $superSuper);
         }
         return array_unique($classes);
+    }
+
+    public function getTypes()
+    {
+        $types = [];
+        foreach ($this->graph as $item) {
+            if (array_key_exists('@type', $item) && $item['@type'] === 'rdfs:Class') {
+                $types[] = $item;
+            }
+        }
+        return $types;
     }
 }

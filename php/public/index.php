@@ -5,23 +5,54 @@ use \Psr\Http\Message\ResponseInterface as Response;
 require '../vendor/autoload.php';
 
 $app = new \Slim\App;
+$api = new POO\SchemaApi();
 
-$schema = new POO\SchemaReader('schema/schema.jsonld');
-$validator = new POO\SchemaValidator($schema);
-
-$app->get('/', function (Request $request, Response $response, array $args) {
-
+$app->get('/', function (Request $request, Response $response, array $args) use ($api) {
     return $response->withJSON(
-        $schema->getTypes(),
+        $api->listTypes(),
         200,
         JSON_UNESCAPED_UNICODE
     );
 });
 
-$app->get('/hello/{name}', function (Request $request, Response $response, array $args) {
-    $name = $args['name'];
-    $response->getBody()->write("Hello, $name");
-
-    return $response;
+$app->get('/{entidad}', function (Request $request, Response $response, array $args) use ($api) {
+    return $response->withJSON(
+        $api->findEntities($args['entidad']),
+        200,
+        JSON_UNESCAPED_UNICODE
+    );
 });
+
+$app->get('/{entidad}/{id}', function (Request $request, Response $response, array $args) use ($api) {
+    return $response->withJSON(
+        $api->read($args['entidad'], $args['id']),
+        200,
+        JSON_UNESCAPED_UNICODE
+    );
+});
+
+$app->post('/{entidad}', function (Request $request, Response $response, array $args) use ($api) {
+    return $response->withJSON(
+        $api->create($args['entidad'], $request->getParsedBody()),
+        200,
+        JSON_UNESCAPED_UNICODE
+    );
+});
+
+$app->put('/{entidad}/{id}', function (Request $request, Response $response, array $args) use ($api) {
+    return $response->withJSON(
+        $api->update($args['entidad'], $request->getParsedBody()),
+        200,
+        JSON_UNESCAPED_UNICODE
+    );
+});
+
+$app->delete('/{entidad}/{id}', function (Request $request, Response $response, array $args) use ($api) {
+    return $response->withJSON(
+        $api->delete($args['id']),
+        200,
+        JSON_UNESCAPED_UNICODE
+    );
+});
+
 $app->run();
