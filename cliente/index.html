@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang=es-es>
+
+<head>
+    <meta charset=utf-8>
+    <title>Schema DB - David González García</title>
+    <link rel="stylesheet" href="style.css" type="text/css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js"></script>
+    <script src="script.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header clearfix">
+            <nav>
+                <ul class="nav nav-pills float-right">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Home
+                            <span class="sr-only">(current)</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                </ul>
+            </nav>
+            <h1>Schema DB</h1>
+        </header>
+
+        <main id="summary" hidden>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Entidad</th>
+                        <th scope="col">Nº de objetos guardados</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+
+        </main>
+
+        <main id="entity" hidden>
+
+            <table class="table" id="summary">
+                <thead>
+                    <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">Tamaño del objeto</th>
+                        <th scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+
+        </main>
+
+        <main id="edit">
+            <form>
+                <div class="form-group">
+                    <label for="obj_type">Entidad</label>
+                    <select class="custom-select" id="obj_type" required>
+                        <option value="AUTO" selected>Automatic</option>
+                        <option value="1">One</option>
+                        <option value="2">Two</option>
+                        <option value="3">Three</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="obj_data">Example textarea</label>
+                    <textarea class="form-control" id="obj_data" rows="12" required></textarea>
+                </div>
+                <input type="hidden" id="obj_id" />
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </form>
+        </main>
+
+        <footer class="footer">
+            <p class="text-center">David González García</p>
+        </footer>
+
+    </div>
+</body>
+
+</html>
