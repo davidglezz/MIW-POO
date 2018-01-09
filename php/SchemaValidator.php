@@ -43,10 +43,10 @@ class SchemaValidator
                     || $this->validators['http://schema.org/True']($value);
             },
             'http://schema.org/False' => function($value) {
-                return $value === "False";
+                return $value === "False" || $value === "http://schema.org/False";
             },
             'http://schema.org/True' => function($value) {
-                return $value === "True";
+                return $value === "True" || $value === "http://schema.org/True";
             },
             'http://schema.org/DateTime' => function($value) {
                 // A combination of date and time of day in the form:
@@ -98,8 +98,7 @@ class SchemaValidator
                 foreach ($this->getArray($prop['http://schema.org/rangeIncludes']) as $valueTypeId) {
                     $valueType = $this->schema->get($valueTypeId);
 
-                    if (is_array($valueType['@type']) && array_search("http://schema.org/DataType", $valueType['@type']) !== false)
-                    {
+                    if (is_array($valueType['@type']) && array_search("http://schema.org/DataType", $valueType['@type']) !== false) {
                         if (!is_string($value)) {
                             $errors[] = "DataType '$key' is not string.";
                             continue;
@@ -122,10 +121,10 @@ class SchemaValidator
 
                 $errors = array_merge($errors, $valueTypeErrors);
 
-                // TODO rdfs:subPropertyOf
                 // TODO Alias "@type": "http://id..."
                 // TODO Enumeration subtypes
                 // supersededBy -> Relates a term (i.e. a property, class or enumeration) to one that supersedes it.
+                // TODO rdfs:subPropertyOf
             }
         }
         return $errors;
