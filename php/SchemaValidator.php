@@ -18,7 +18,9 @@ class SchemaValidator
             },
             'http://schema.org/Time' => function($value) {
                 // A point in time recurring on multiple days in the form hh:mm:ss[Z|(+|-)hh:mm] (see <a href=\"http://www.w3.org/TR/xmlschema-2/#time\">XML schema for details</a>).
-                return true; //TODO
+                // TODO timezone
+                $time = \DateTime::createFromFormat('hh:mm:ss', $value);
+                return $time && $time->format('hh:mm:ss') == $value;
             },
             'http://schema.org/Number' => function($value) {
                 return $this->validators['http://schema.org/Integer']($value)
@@ -28,13 +30,13 @@ class SchemaValidator
                 return $value[0] == '-' ? ctype_digit(substr($value, 1)) : ctype_digit($value);
             },
             'http://schema.org/Float' => function($value) {
-                return true; //TODO
+                return ((string) floatval($value)) === $value; // TODO
             },
             'http://schema.org/Text' => function($value) {
                 return true;
             },
             'http://schema.org/URL' => function($value) {
-                return true;
+                return true; // TODO
             },
             'http://schema.org/Boolean' => function($value) {
                 return $this->validators['http://schema.org/False']($value)
@@ -47,8 +49,11 @@ class SchemaValidator
                 return $value === "True";
             },
             'http://schema.org/DateTime' => function($value) {
-                // A combination of date and time of day in the form [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm] (see Chapter 5.4 of ISO 8601).
-                return true; //TODO
+                // A combination of date and time of day in the form:
+                // [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm] (see Chapter 5.4 of ISO 8601).
+                $dt = \DateTime::createFromFormat(\DateTime::ISO8601, $value);
+                return $dt && $dt->format(\DateTime::ISO8601) == $value;
+                return true; // TODO
             }
         ];
     }
