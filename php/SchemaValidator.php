@@ -18,20 +18,37 @@ class SchemaValidator
             },
             'http://schema.org/Time' => function($value) {
                 // A point in time recurring on multiple days in the form hh:mm:ss[Z|(+|-)hh:mm] (see <a href=\"http://www.w3.org/TR/xmlschema-2/#time\">XML schema for details</a>).
-                return false;
+                return true; //TODO
             },
             'http://schema.org/Number' => function($value) {
-                return true;
+                return $this->validators['http://schema.org/Integer']($value)
+                    || $this->validators['http://schema.org/Float']($value);
+            },
+            'http://schema.org/Integer' => function($value) {
+                return $value[0] == '-' ? ctype_digit(substr($value, 1)) : ctype_digit($value);
+            },
+            'http://schema.org/Float' => function($value) {
+                return true; //TODO
             },
             'http://schema.org/Text' => function($value) {
                 return true;
             },
+            'http://schema.org/URL' => function($value) {
+                return true;
+            },
             'http://schema.org/Boolean' => function($value) {
-                return $value === "True" || $value === "False";
+                return $this->validators['http://schema.org/False']($value)
+                    || $this->validators['http://schema.org/True']($value);
+            },
+            'http://schema.org/False' => function($value) {
+                return $value === "False";
+            },
+            'http://schema.org/True' => function($value) {
+                return $value === "True";
             },
             'http://schema.org/DateTime' => function($value) {
                 // A combination of date and time of day in the form [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm] (see Chapter 5.4 of ISO 8601).
-                return false;
+                return true; //TODO
             }
         ];
     }
@@ -101,7 +118,8 @@ class SchemaValidator
                 $errors = array_merge($errors, $valueTypeErrors);
 
                 // TODO rdfs:subPropertyOf
-                // TODO alias
+                // TODO Alias "@type": "http://id..."
+                // TODO Enumeration subtypes
             }
         }
         return $errors;
