@@ -6,6 +6,9 @@ class SchemaReader
 {
     protected $graph;
 
+    /**
+     * $path i.e. /version/latest/schema.jsonld
+     */
     public function __construct(string $path)
     {
         $jsonldSchema = file_get_contents($path);
