@@ -1,3 +1,4 @@
 
 php/vendor/*
 *.db
+*/node_modules/*

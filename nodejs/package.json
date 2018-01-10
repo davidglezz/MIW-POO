@@ -1,0 +1,14 @@
+{
+  "name": "poo-nodejs-backend",
+  "version": "1.0.0",
+  "description": "schema app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "David González García",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}
