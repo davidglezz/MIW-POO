@@ -49,12 +49,14 @@ class SchemaApi
 
     public function read($type, $id)
     {
-        return $this->db->query("SELECT data FROM objects WHERE id = $id AND type = '$type' LIMIT 1");
+        $sql = "SELECT data FROM objects WHERE id = $id AND type = '$type' LIMIT 1";
+        return $this->db->query($sql)->fetch(\PDO::FETCH_ASSOC);
     }
 
     public function update($type, $id, $data)
     {
-        return $this->db->exec("UPDATE objects SET data = '$data' WHERE id = $id AND type = '$type' LIMIT 1");
+        $sql = "UPDATE objects SET data = '$data' WHERE id = $id AND type = '$type' LIMIT 1";
+        return $this->db->exec($sql);
     }
 
     public function delete($id)
