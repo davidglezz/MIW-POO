@@ -1,4 +1,4 @@
-
+// David González García
 $(document).ready(function () {
 
     var type = '';
@@ -24,8 +24,7 @@ $(document).ready(function () {
         $('#edit').hide();
         $('#remove').hide();
 
-        $('main').attr('hidden', '');
-        $('#object').removeAttr('hidden');
+        showPage('object');
     });
 
     // View object list of type..
@@ -52,8 +51,7 @@ $(document).ready(function () {
 
         $('#object .name').html(type);
         $('#obj_data textarea').attr('readonly', 'readonly');
-        $('main').attr('hidden', '');
-        $('#object').removeAttr('hidden');
+        showPage('object');
     });
 
     // Edit object
@@ -66,8 +64,7 @@ $(document).ready(function () {
 
         $('#object .name').html(type);
         $('#obj_data').removeAttr('readonly');
-        $('main').attr('hidden', '');
-        $('#object').removeAttr('hidden');
+        showPage('object');
     });
 
     // Remove object
@@ -101,13 +98,11 @@ $(document).ready(function () {
             if (obj && obj['@type']) {
                 type = obj['@type'];
             } else {
-                $('#tpl .alert-danger .msg').html('No se ha proporcionado el tipo de la entidad.');
-                $('#tpl .alert-danger').clone().removeAttr('hidden').appendTo('#alerts');
+                showError('No se ha proporcionado el tipo de la entidad.');
                 return;
             }
         } catch (e) {
-            $('#tpl .alert-danger .msg').html(e);
-            $('#tpl .alert-danger').clone().removeAttr('hidden').appendTo('#alerts');
+            showError(e);
             return;
         }
 
@@ -125,8 +120,7 @@ $(document).ready(function () {
                         var htmlErr = '' + result.error;
                     }
                     
-                    $('#tpl .alert-danger .msg').html(htmlErr);
-                    $('#tpl .alert-danger').clone().removeAttr('hidden').appendTo('#alerts');
+                    showError(htmlErr);
                     return;
                 }
 
@@ -138,14 +132,12 @@ $(document).ready(function () {
 
     // Botón atras
     $('#back2summary').on('click', function () {
-        $('main').attr('hidden', '');
-        $('#summary').removeAttr('hidden');
+        showPage('summary');
     });
 
     // Botón atras
     $('#back2entity').on('click', function () {
-        $('main').attr('hidden', '');
-        $(type ? '#entity' : '#summary').removeAttr('hidden');
+        showPage(type ? 'entity' : 'summary');
     });
 
     // Algunas funciones para no repetir código
@@ -153,6 +145,16 @@ $(document).ready(function () {
         $('#tpl .alert-danger .msg').html(msg);
         $('#tpl .alert-danger').clone().removeAttr('hidden').appendTo('#alerts');
     }
+
+    /**
+     * Muestras la sección indicadaa
+     * @param string('summary' | 'entity' | 'object') page
+     */
+    function showPage(page) {
+        $('main').attr('hidden', '');
+        $('#'+page).removeAttr('hidden');
+    }
+
 
     function showEntitySumary(newtype) {
         type = newtype;
@@ -170,8 +172,7 @@ $(document).ready(function () {
         });
 
         $('#entity .name').html(type);
-        $('main').attr('hidden', '');
-        $('#entity').removeAttr('hidden');
+        showPage('entity');
     }
     
 })
