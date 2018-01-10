@@ -10,7 +10,7 @@ code[class*="language-"],
 pre[class*="language-"] {
 	color: black;
 	background: none;
-	text-shadow: 0 1px white;
+	/*text-shadow: 0 1px white;*/
 	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
 	text-align: left;
 	white-space: pre;
@@ -107,7 +107,7 @@ pre[class*="language-"] {
 .language-css .token.string,
 .style .token.string {
 	color: #a67f59;
-	background: hsla(0, 0%, 100%, .5);
+	/*background: hsla(0, 0%, 100%, .5);*/
 }
 
 .token.atrule,

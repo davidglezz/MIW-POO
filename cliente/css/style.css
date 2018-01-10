@@ -58,3 +58,7 @@ body {
     position: relative;
     overflow: visible !important;
 }
+
+.CodeFlask__pre {
+    border: 1px solid transparent;
+}
