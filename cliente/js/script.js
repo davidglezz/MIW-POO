@@ -20,10 +20,12 @@ $(document).ready(function () {
     $('#add, #add2').on('click', function () {
         id = 0;
         editor.update('{\n    "@context": "http://schema.org",\n    "@type": "' + type + '",\n}');
-
+        $('#obj_data textarea').removeAttr('readonly');
+        $('#object .show-on-new').show();
+        $('#object .name').html('');
         $('#edit').hide();
         $('#remove').hide();
-
+        $('#save').show();
         showPage('object');
     });
 
@@ -32,64 +34,54 @@ $(document).ready(function () {
         showEntitySumary($(this).find('td:first').text());
     });
 
-    // View object
-    $('#entity tbody').on('click', '.action-view', function () {
-        var id = $(this).closest('tr').find('td:first').text();
-        // Load object data
-        $.get("../" + type + '/' + id, function (response) {
-            if (response && response.data) {
-                try {
-                    editor.update(JSON.stringify(JSON.parse(response.data), null, 4));
-                } catch (e) {
-                    editor.update(response.data);
-                    showError('JSON mal formado: ' + e);
-                }
-            } else {
-                showError('No se ha podido cargar.');
-            }
+    // "View object" button from table
+    $('#entity tbody').on('click', '.action-view', function () {     
+        loadObject($(this).closest('tr').find('td:first').text(), function () {
+            $('#obj_data textarea').attr('readonly', 'readonly');
         });
 
-        $('#object .name').html(type);
-        $('#obj_data textarea').attr('readonly', 'readonly');
+        $('#object .show-on-new').hide();
+        $('#object .name').html(id);
+
+        $('#edit').show();
+        $('#remove').show();
+        $('#save').hide();
+
         showPage('object');
     });
 
-    // Edit object
+    // "Edit object" button from table
     $('#entity tbody').on('click', '.action-edit', function () {
-        id = $(this).closest('tr').find('td:first').text();
-        // Load object data
-        $.get("../" + type + '/' + id, function (response) {
-            $('#obj_data').val(response.data);
+        loadObject($(this).closest('tr').find('td:first').text(), function () {
+            $('#obj_data textarea').removeAttr('readonly');
         });
 
+        $('#edit').hide();
+        $('#remove').show();
+        $('#save').show();
+
         $('#object .name').html(type);
-        $('#obj_data').removeAttr('readonly');
         showPage('object');
     });
 
-    // Remove object
+    // "Remove object" button from table
     $('#entity tbody').on('click', '.action-remove', function () {
         var $tr = $(this).closest('tr');
-        var id = $tr.find('td:first').text();
-
-        if (confirm("Seguro?")) {
-            $.ajax({
-                url: "../" + type + '/' + id,
-                type: 'DELETE',
-                success: function (result) {
-                    $tr.children('td')
-                        .animate({ padding: 0 })
-                        .wrapInner('<div />')
-                        .children()
-                        .slideUp(function () {
-                            $tr.remove();
-                        });
-                }
-            });
-        }
+        removeObject($tr.find('td:first').text(), function (success) {
+            if (success) {
+                $tr.children('td')
+                    .animate({ padding: 0 })
+                    .wrapInner('<div />')
+                    .children()
+                    .slideUp(function () {
+                        $tr.remove();
+                    });
+            } else {
+                showError('Error al eliminar el objeto.');
+            }
+        })
     });
 
-    
     // Botón guardar
     $('#save').on('click', function () {
         // Validar json y extraer tipo
@@ -112,26 +104,42 @@ $(document).ready(function () {
             dataType: "json",
             data: obj,
             success: function (result) {
-                console.log(result);
                 if (!result || result.error) {
                     if (Array.isArray(result.error)) {
                         var htmlErr = '<ul><li>' + result.error.join('</li><li>') + '</li></ul>';
                     } else {
                         var htmlErr = '' + result.error;
                     }
-                    
                     showError(htmlErr);
                     return;
                 }
-
-                $('#tpl .alert-success').clone().removeAttr('hidden').appendTo('#alerts');
+                showSuccess('El objeto se guardó correctamente.');
                 showEntitySumary(type);
             }
         });
     });
 
+    $('#remove').on('click', function () {
+        removeObject(id, function (success) {
+            if (success) {
+                showSuccess('El objeto se eliminó correctamente.');
+                showEntitySumary(type);
+            } else {
+                showError('Error al eliminar el objeto.');
+            }
+        })        
+    })
+
+    $('#edit').on('click', function () {
+        $('#obj_data textarea').removeAttr('readonly');
+        $('#edit').hide();
+        $('#remove').show();
+        $('#save').show();
+    })
+
     // Botón atras
     $('#back2summary').on('click', function () {
+        type = '';
         showPage('summary');
     });
 
@@ -146,6 +154,11 @@ $(document).ready(function () {
         $('#tpl .alert-danger').clone().removeAttr('hidden').appendTo('#alerts');
     }
 
+    function showSuccess(msg) {
+        $('#tpl .alert-success .msg').html(msg);
+        $('#tpl .alert-success').clone().removeAttr('hidden').appendTo('#alerts');
+    }
+
     /**
      * Muestras la sección indicadaa
      * @param string('summary' | 'entity' | 'object') page
@@ -154,7 +167,6 @@ $(document).ready(function () {
         $('main').attr('hidden', '');
         $('#'+page).removeAttr('hidden');
     }
-
 
     function showEntitySumary(newtype) {
         type = newtype;
@@ -173,6 +185,42 @@ $(document).ready(function () {
 
         $('#entity .name').html(type);
         showPage('entity');
+    }
+
+    function loadObject(objId, callback) {
+        // Load object data to editor
+        id = objId;
+        $.get("../" + type + '/' + id, function (response) {
+            if (response && response.data) {
+                try {
+                    editor.update(JSON.stringify(JSON.parse(response.data), null, 4));
+                } catch (e) {
+                    editor.update(response.data);
+                    showError('JSON mal formado: ' + e);
+                }
+            } else {
+                showError('No se ha podido cargar.');
+            }
+            if (typeof callback === 'function') {
+                callback();
+            }
+        });
+    }
+
+    function removeObject(objId, callback) {
+        id = 0;
+
+        if (confirm("Seguro?")) {
+            $.ajax({
+                url: "../" + type + '/' + objId,
+                type: 'DELETE',
+                success: function (result) {
+                    if (typeof callback === 'function') {
+                        callback(result && result.success);
+                    }
+                }
+            });
+        }
     }
     
 })
