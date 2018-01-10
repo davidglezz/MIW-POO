@@ -36,9 +36,14 @@ class SchemaApi
 
     public function create($type, $data)
     {
-        // TODO validate and json_encode
+        $errors = $this->validator->validate($data);
+        if (count($errors) > 0) {
+            return ['error' => $errors];
+        }
+
+        $data = json_encode($data);
         $sql = "INSERT INTO objects (type, data) VALUES ('$type', '$data')";
-        return $this->db->exec($sql);
+        return ['success' => $this->db->exec($sql) !== false];
     }
 
     public function findEntities($type)
@@ -56,11 +61,11 @@ class SchemaApi
     public function update($type, $id, $data)
     {
         $sql = "UPDATE objects SET data = '$data' WHERE id = $id AND type = '$type' LIMIT 1";
-        return $this->db->exec($sql);
+        return ['success' => $this->db->exec($sql) !== false];
     }
 
     public function delete($id)
     {
-        return $this->db->query("DELETE FROM objects WHERE id = $id");
+        return ['success' => $this->db->exec("DELETE FROM objects WHERE id = $id") !== false];
     }
 }
