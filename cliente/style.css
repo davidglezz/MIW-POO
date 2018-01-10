@@ -47,3 +47,8 @@ body {
         margin-bottom: 2rem;
     }
 }
+
+#entity .name {
+    font-style: italic;
+    color: #007bff;
+}
