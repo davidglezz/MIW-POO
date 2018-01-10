@@ -52,3 +52,9 @@ body {
     font-style: italic;
     color: #007bff;
 }
+
+#obj_data {
+    height: 70vh;
+    position: relative;
+    overflow: visible !important;
+}

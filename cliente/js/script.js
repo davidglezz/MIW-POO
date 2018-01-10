@@ -1,6 +1,6 @@
 
 $(document).ready(function () {
-
+    
     // Load summary
     $.get("../", function (response) {
         var html = '';
@@ -19,10 +19,20 @@ $(document).ready(function () {
         $('#summary tbody').html(html);
     });
 
+
     // Add new
     $('#add, #add2').on('click', function () {
         $('#obj_type').val('AUTO');
-        $('#obj_data').val('');
+        $('#obj_data').html('{\n    "@context": "http://schema.org",\n    "@type": "",\n}');
+
+        var flask = new CodeFlask();
+        flask.run('#obj_data', { language: 'json', rtl: false });
+        //flask.update("{\n    "@context": "http://schema.org",\n    "@type": "",\n}");
+
+        $('#obj_data textarea').addClass('form-control');
+        $('#edit').hide();
+        $('#remove').hide();
+
         $('main').attr('hidden', '');
         $('#object').removeAttr('hidden');
     });
@@ -115,6 +125,8 @@ $(document).ready(function () {
         $('main').attr('hidden', '');
         $('#entity').removeAttr('hidden');
     });
+
+    
 })
 
 

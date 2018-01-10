@@ -4,13 +4,17 @@
 <head>
     <meta charset=utf-8>
     <title>Schema DB - David González García</title>
-    <link rel="stylesheet" href="style.css" type="text/css" />
+    <link rel="stylesheet" href="css/style.css" type="text/css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/prism.css" type="text/css" />
+    <link rel="stylesheet" href="css/codeflask.css" type="text/css" />
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/CodeFlask.js/0.1.1/codeflask.min.js"></script>
-    <script src="script.js"></script>
+    <script src="js/prism.js"></script>
+    <script src="js/codeflask.js"></script>
+    <!--<script src="js/codeflask-editor.js"></script>-->
+    <script src="js/script.js"></script>
 </head>
 
 <body>
@@ -94,8 +98,8 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="obj_data">Example textarea</label>
-                    <textarea class="form-control" id="obj_data" rows="12" required></textarea>
+                    <!--<textarea class="form-control" id="obj_data2" rows="12" required></textarea>-->
+                    <div id="obj_data" data-language="json">{}</div>
                 </div>
                 <input type="hidden" id="obj_id" />
                 <button type="button" id="back2entity" class="btn btn-primary">Atrás</button>

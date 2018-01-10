@@ -9,7 +9,7 @@ $api = new POO\SchemaApi();
 
 $app->get('/', function (Request $request, Response $response, array $args) use ($api) {
     return $response->withJSON(
-        $api->listTypes(),
+        $request->getQueryParam('all') === null ? $api->listTypes() : $api->getAllTypes(),
         200,
         JSON_UNESCAPED_UNICODE
     );
