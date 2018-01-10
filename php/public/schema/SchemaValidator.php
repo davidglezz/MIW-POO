@@ -76,7 +76,7 @@ class SchemaValidator
 
         $classes = $this->schema->getSuperClasses($context.$type);
         if (count($classes) === 0) {
-            $errors[] = "Type '$id' not found in schema.";
+            $errors[] = "Type '$type' not found in schema.";
             return $errors;
         }
 
@@ -109,8 +109,7 @@ class SchemaValidator
                         } else {
                             $valueTypeErrors[] = "'$key' is not valid $valueTypeId.";
                         }
-                        // TODO
-                    } else {
+                    } else { // TODO Se asume class, verificar
                         $result = $this->validate($value, $context);
                         if (count($result) === 0) {
                             break;
