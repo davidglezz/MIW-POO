@@ -9,6 +9,12 @@
   "author": "David González García",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.16.2"
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "sqlite3": "^3.1.13"
+  },
+  "devDependencies": {
+    "nodemon": "^1.14.10",
+    "standard": "^10.0.3"
   }
 }
