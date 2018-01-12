@@ -1,7 +1,17 @@
 import sqlite3
 
-class SchemaRepository:
+class SchemaRepository(object):
+    __instance = None
+    def __new__(cls):
+        if SchemaRepository.__instance is None:
+            SchemaRepository.__instance = object.__new__(cls)
+            cls.__instance.__initialized = False
+        return SchemaRepository.__instance
+
     def __init__(self):
+        if(self.__initialized):
+            return
+        self.__initialized = True
         self.con = sqlite3.connect('../data.db')
         self.con.row_factory = dict_factory
         self.c = self.con.cursor()
@@ -21,16 +31,16 @@ class SchemaRepository:
         sql = 'UPDATE objects SET data = ? WHERE id = ? AND type = ? LIMIT 1'
         return self.c.execute(sql, (data, id, entity))
 
-    def delete(self, entity, id, data):
-        sql = 'DELETE FROM objects WHERE id = ?'
-        return self.c.execute(sql, (id,))
+    def delete(self, entity, id):
+        sql = 'DELETE FROM objects WHERE id = ? AND type = ?'
+        return self.c.execute(sql, (id, entity))
 
-    def listTypes(self):
+    def listEntities(self):
         sql = 'SELECT type, COUNT(*) as num FROM objects GROUP BY type'
         self.c.execute(sql)
         return self.c.fetchall()
 
-    def findEntities(self, entity):
+    def listEntityObjects(self, entity):
         sql = 'SELECT id, LENGTH(data) AS size FROM objects WHERE type = ?'
         self.c.execute(sql, (entity,))
         return self.c.fetchall()
