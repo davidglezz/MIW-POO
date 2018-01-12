@@ -8,6 +8,7 @@ class SchemaReader
 
     /**
      * $path i.e. /version/latest/schema.jsonld
+     * TODO read https://json-ld.org/spec/latest/json-ld/
      */
     public function __construct(string $path)
     {
