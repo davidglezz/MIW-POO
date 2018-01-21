@@ -11,6 +11,9 @@ class SchemaValidator
     {
         $this->schema = $schema;
         $this->validators = [
+            'rdfs:Class' => function($value) {
+                return true;
+            },
             'http://schema.org/Date' => function($value) {
                 // A date value in <a href=\"http://en.wikipedia.org/wiki/ISO_8601\">ISO 8601 date format</a>.
                 $date = \DateTime::createFromFormat('Y-m-d', $value);
@@ -57,73 +60,75 @@ class SchemaValidator
             }
         ];
     }
+
+    public function validateValue(string $key, $value, string $context = '', $in = null)
+    {
+        $prop = $this->schema->get($context.$key);
+        $valueTypeErrors = [];
+        foreach ($this->getArray($prop['http://schema.org/rangeIncludes']) as $valueTypeId) {
+            $valueType = $this->schema->get($valueTypeId);
+            if (is_array($valueType['@type']) && array_search("http://schema.org/DataType", $valueType['@type']) !== false) {
+                if (!is_string($value)) {
+                    $errors[] = "DataType '$key' is not string.";
+                    continue;
+                }
+
+                if ($this->validators[$valueTypeId]($value)) {
+                    break;
+                } else {
+                    $valueTypeErrors[] = "'$key' is not valid $valueTypeId.";
+                }
+            } else { // TODO Se asume class, verificar
+                $result = $this->validate($value, $context);
+                if (count($result) === 0) {
+                    break;
+                }
+                $valueTypeErrors = array_merge($valueTypeErrors, $result);
+            }
+        }
+    }
     
     public function validate(array $obj, string $context = '')
     {
-        $errors = [];
-
+        // Type
         if (!array_key_exists('@type', $obj)) {
-            $errors[] = '@type not found on input object.';
-            return $errors;
+            return ['@type not found on input object.'];
         }
-        
+        $type = $obj['@type'];
+
         // Context
         $context = isset($obj['@context']) ? $obj['@context'] : $context;
         if (!empty($context) && strrpos($context, '/') !== strlen($context) - 1) {
             $context .= '/';
         }
-        $type = $obj['@type'];
 
+        // Type + Inheritance
         $classes = $this->schema->getSuperClasses($context.$type);
         if (count($classes) === 0) {
-            $errors[] = "Type '$type' not found in schema.";
-            return $errors;
+            return ["Type '$type' not found in schema."];
         }
 
+        // Properties
+        $errors = [];
         foreach ($obj as $key => $value) {
             if (substr($key, 0, 1) !== '@') {
+                // Exist
                 $prop = $this->schema->get($context.$key);
                 if ($prop === null || !array_key_exists('@type', $prop) || $prop['@type'] !== 'rdf:Property') {
                     $errors[] = "Property '$key' not found in schema.";
                     continue;
                 }
-
+                // Its defined in the type.
                 $propertyClasses = $this->getArray($prop['http://schema.org/domainIncludes']);
                 if (count(array_intersect($classes, $propertyClasses)) === 0) {
                     $errors[] = "Property '$key' not found in '$type'.";
                     continue;
                 }
-
-                $valueTypeErrors = [];
-                foreach ($this->getArray($prop['http://schema.org/rangeIncludes']) as $valueTypeId) {
-                    $valueType = $this->schema->get($valueTypeId);
-
-                    if (is_array($valueType['@type']) && array_search("http://schema.org/DataType", $valueType['@type']) !== false) {
-                        if (!is_string($value)) {
-                            $errors[] = "DataType '$key' is not string.";
-                            continue;
-                        }
-
-                        if ($this->validators[$valueTypeId]($value)) {
-                            break;
-                        } else {
-                            $valueTypeErrors[] = "'$key' is not valid $valueTypeId.";
-                        }
-                    } else { // TODO Se asume class, verificar
-                        $result = $this->validate($value, $context);
-                        if (count($result) === 0) {
-                            break;
-                        }
-                        $valueTypeErrors = array_merge($valueTypeErrors, $result);
-                    }
+                // Validate property value
+                $propertyErrors = $this->validateValue($key, $value, $context);
+                if (count($propertyErrors) > 0) {
+                    $errors = array_merge($errors, $propertyErrors);
                 }
-
-                $errors = array_merge($errors, $valueTypeErrors);
-
-                // TODO Alias "@type": "http://id..."
-                // TODO Enumeration subtypes
-                // supersededBy -> Relates a term (i.e. a property, class or enumeration) to one that supersedes it.
-                // TODO rdfs:subPropertyOf
             }
         }
         return $errors;
@@ -136,5 +141,8 @@ class SchemaValidator
         return isset($obj['@id']) ? [$obj['@id']] : array_column($obj, '@id');
     }
 
-    
+    // TODO Alias "@type": "http://id..."
+    // TODO Enumeration subtypes
+    // TODO supersededBy -> Relates a term (i.e. a property, class or enumeration) to one that supersedes it.
+    // TODO rdfs:subPropertyOf
 }
