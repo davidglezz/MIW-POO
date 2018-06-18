@@ -116,7 +116,7 @@ $(document).ready(function () {
     }
 
     $.ajax({
-      url: "../" + type,
+      url: api + type,
       type: 'POST',
       dataType: "json",
       data: obj,
@@ -243,7 +243,7 @@ $(document).ready(function () {
 
     if (confirm("Seguro?")) {
       $.ajax({
-        url: "../" + type + '/' + objId,
+        url: api + type + '/' + objId,
         type: 'DELETE',
         success: function (result) {
           if (typeof callback === 'function') {
