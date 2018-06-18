@@ -10,7 +10,8 @@ class SchemaApi
 
     public function __construct()
     {
-        $this->schema = new SchemaReader(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'schema.jsonld');
+        $ds = DIRECTORY_SEPARATOR;
+        $this->schema = new SchemaReader(__DIR__ . "$ds..$ds..$ds..{$ds}schema.jsonld");
         $this->validator = new SchemaValidator($this->schema);
         try {
             $this->db = new \PDO('sqlite:../../data.db');
