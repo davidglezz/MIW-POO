@@ -2,132 +2,127 @@
 <html lang=es-es>
 
 <head>
-    <meta charset=utf-8>
-    <title>Schema DB - David González García</title>
-    <link rel="stylesheet" href="css/style.css" type="text/css" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/prism.css" type="text/css" />
-    <link rel="stylesheet" href="css/codeflask.css" type="text/css" />
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js"></script>
-    <script src="js/prism.js"></script>
-    <script src="js/codeflask.js"></script>
-    <!--<script src="js/codeflask-editor.js"></script>-->
-    <script src="js/script.js"></script>
+  <meta charset=utf-8>
+  <title>Schema DB - David González García</title>
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/prism.css" type="text/css" />
+  <link rel="stylesheet" href="css/codeflask.css" type="text/css" />
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+  <script src="js/prism.js"></script>
+  <script src="js/codeflask.js"></script>
+  <!--<script src="js/codeflask-editor.js"></script>-->
+  <script src="js/script.js"></script>
 </head>
 
 <body>
-    <div class="container">
-        <header class="header clearfix">
-            <!--<nav>
-                <ul class="nav nav-pills float-right">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">Home
-                            <span class="sr-only">(current)</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Contact</a>
-                    </li>
-                </ul>
-            </nav>-->
-            <h1>Schema DB</h1>
-        </header>
+  <div class="container">
+    <header class="header clearfix">
+      <h1>Schema DB
+        <small id="server-select" class="dropdown float-right">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">PHP</a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="#">PHP</a>
+            <a class="dropdown-item" href="#">JavaScript</a>
+            <a class="dropdown-item" href="#">Python</a>
+          </div>
+        </small>
+      </h1>
+    </header>
 
-        <!--
-        <div id="breadcrumb">
-            <span class="start">Entidades</span>
-            <span class="entity"> » Lista de objetos</span>
-            <span class="object"> » Objeto</span>
-        </div>
-        -->
-        <div id="alerts"></div>
-
-        <div id="tpl">
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden>
-                <strong>Error</strong>
-                <span class="msg"></span>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <div class="alert alert-success alert-dismissible fade show" role="alert" hidden>
-                <strong>Bien!</strong>
-                <span class="msg"></span>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        </div>
-
-        <main id="summary">
-            <h2>Entidades
-                <button type="button" id="add2" class="btn btn-primary float-right">Añadir</button>
-            </h2>
-            <p>Resumen de todos los objetos almacenados.</p>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Entidad</th>
-                        <th scope="col">Nº de objetos guardados</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </main>
-
-
-        <main id="entity" hidden>
-            <h2>Objetos de la entidad
-                <span class="name"></span> almacenados
-                <button type="button" id="add" class="btn btn-primary float-right">Añadir</button>
-            </h2>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Id</th>
-                        <th scope="col">Tamaño del objeto</th>
-                        <th scope="col">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-            <br />
-            <button type="button" id="back2summary" class="btn btn-primary">Atrás</button>
-        </main>
-
-        <main id="object" hidden>
-            <h2>
-                <span class="show-on-new">Añadir nuevo </span>Objeto
-                <span class="name"></span>
-            </h2>
-            <form>
-                <div class="form-group">
-                    <!--<textarea class="form-control" id="obj_data2" rows="12" required></textarea>-->
-                    <div id="obj_data" data-language="json">{}</div>
-                </div>
-                <input type="hidden" id="obj_id" />
-                <button type="button" id="back2entity" class="btn btn-primary">Atrás</button>
-                <span class="float-right">
-                    <button type="button" id="edit" class="btn btn-secondary">Modificar</button>
-                    <button type="button" id="save" class="btn btn-success">Guardar</button>
-                    <button type="button" id="remove" class="btn btn-outline-danger">Eliminar</button>
-                </span>
-            </form>
-        </main>
-
-        <footer class="footer">
-            <p class="text-center">David González García</p>
-        </footer>
-
+    <!--
+    <div id="breadcrumb">
+      <span class="start">Entidades</span>
+      <span class="entity"> » Lista de objetos</span>
+      <span class="object"> » Objeto</span>
     </div>
+    -->
+    <div id="alerts"></div>
+
+    <div id="tpl">
+      <div class="alert alert-danger alert-dismissible fade show" role="alert" hidden>
+        <strong>Error</strong>
+        <span class="msg"></span>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="alert alert-success alert-dismissible fade show" role="alert" hidden>
+        <strong>Bien!</strong>
+        <span class="msg"></span>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    </div>
+
+    <main id="summary">
+      <h2>Entidades
+        <button type="button" id="add2" class="btn btn-primary float-right">Añadir</button>
+      </h2>
+      <p>Resumen de todos los objetos almacenados.</p>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">Entidad</th>
+            <th scope="col">Nº de objetos guardados</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </main>
+
+
+    <main id="entity" hidden>
+      <h2>Objetos de la entidad
+        <span class="name"></span> almacenados
+        <button type="button" id="add" class="btn btn-primary float-right">Añadir</button>
+      </h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Tamaño del objeto</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+      <br />
+      <button type="button" id="back2summary" class="btn btn-primary">Atrás</button>
+    </main>
+
+    <main id="object" hidden>
+      <h2>
+        <span class="show-on-new">Añadir nuevo </span>Objeto
+        <span class="name"></span>
+      </h2>
+      <form>
+        <div class="form-group">
+          <!--<textarea class="form-control" id="obj_data2" rows="12" required></textarea>-->
+          <div id="obj_data" data-language="json">{}</div>
+        </div>
+        <input type="hidden" id="obj_id" />
+        <button type="button" id="back2entity" class="btn btn-primary">Atrás</button>
+        <span class="float-right">
+          <button type="button" id="edit" class="btn btn-secondary">Modificar</button>
+          <button type="button" id="save" class="btn btn-success">Guardar</button>
+          <button type="button" id="remove" class="btn btn-outline-danger">Eliminar</button>
+        </span>
+      </form>
+    </main>
+
+    <footer class="footer">
+      <p class="text-center">David González García</p>
+    </footer>
+
+  </div>
+
 </body>
 
 </html>
