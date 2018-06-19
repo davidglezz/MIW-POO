@@ -18,26 +18,44 @@ module.exports = class SchemaApiRoutes {
   }
 
   async getMain (req, res) {
-    res.json(await this.controller.listTypes().catch(error => ({ error })))
+    res.json(await this.controller.listTypes()
+      .catch(error => ({
+        error
+      })))
   }
 
   async getEntity (req, res) {
-    res.json(await this.controller.findEntities(req.params.entity).catch(error => ({ error })))
+    res.json(await this.controller.findEntities(req.params.entity)
+      .catch(error => ({
+        error
+      })))
   }
 
   async getEntityId (req, res) {
-    res.json(await this.controller.read(req.params.entity, req.params.id).catch(error => ({ error })))
+    res.json(await this.controller.read(req.params.entity, req.params.id)
+      .catch(error => ({
+        error
+      })))
   }
 
   async postEntity (req, res) {
-
+    res.json(await this.controller.create(req.params.entity, req.body)
+      .catch(error => ({
+        error
+      })))
   }
 
   async putEntityId (req, res) {
-
+    res.json(await this.controller.update(req.params.entity, req.params.id, req.body)
+      .catch(error => ({
+        error
+      })))
   }
 
   async deleteEntityId (req, res) {
-
+    res.json(await this.controller.delete(req.params.id)
+      .catch(error => ({
+        error
+      })))
   }
 }
