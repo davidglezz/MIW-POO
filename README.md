@@ -22,8 +22,16 @@ php -S 0.0.0.0:8001 php
 
 ### JavaScript Server
 ```
-cd php/public
-php -S 0.0.0.0:8001 php
+npm install
+sudo npm i --save sqlite3 --unsafe-perm
+cd nodejs
+npm start
+or
+npm run dev
+
+
 ```
+
+sudo npm i -g npm --unsafe-perm
 
 ### Python Server
