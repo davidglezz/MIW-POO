@@ -1,8 +1,8 @@
 const sqlite3 = require('sqlite3').verbose()
 
 module.exports = class SchemaObjectStore {
-  constructor () {
-    this.db = new sqlite3.Database('../data.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
+  constructor (dbpath) {
+    this.db = new sqlite3.Database(dbpath, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
       if (err) {
         return console.error(err.message)
       }
