@@ -6,6 +6,7 @@ module.exports = class SchemaValidator {
 
     this.validators = {
       'rdfs:Class': (obj, context = '') => {
+        console.log('rdfs:Class', obj)
         // Type
         if (!obj['@type']) return ['@type not found on input object.']
         let type = obj['@type']
@@ -25,23 +26,23 @@ module.exports = class SchemaValidator {
         // Properties
         let errors = []
         for (let [id, value] of Object.entries(obj)) {
-          if (id[0] !== '@') { // ignore @..
-            const propertyErrors = this.validators['rdf:Property'](id, value, context, type)
-            if (propertyErrors.length) {
-              errors = [...errors, ...propertyErrors]
-            }
+          if (id[0] === '@') continue // ignore @..
+          const propertyErrors = this.validators['rdf:Property'](id, value, context, type)
+          if (propertyErrors.length) {
+            errors = [...errors, ...propertyErrors]
           }
         }
         return errors
       },
       'rdf:Property': (id, value, context, type) => {
+        console.log('rdf:Property', id)
         // Is there property in the vocabulary?
         let prop = this.schema.get(context + id)
         if (!prop || prop['@type'] !== 'rdf:Property') {
           return [`Property '${id}' not found in vocabulary.`]
         }
 
-        // Does the property belong to the class/type/shape + Inheritance (Parents)?
+        // Does the property belong to the class/type/shape + Inheritance (in Parents)?
         let classes = this.schema.getSuperClasses(context + type)
         let propertyClasses = this.getArray(prop['http://schema.org/domainIncludes'])
         if (classes.filter(v => propertyClasses.indexOf(v) !== -1).length === 0) { // Intersection
@@ -49,40 +50,40 @@ module.exports = class SchemaValidator {
         }
 
         // Validate property value
-        let isValid = false
-        let errors = []
-        for (let valueTypeId of this.getArray(prop['http://schema.org/rangeIncludes'])) {
-          let valueType = this.schema.get(valueTypeId)
-          let types = typeof valueType['@type'] === 'string' ? [valueType['@type']] : valueType['@type']
-          let validator
+        const This = this // Use this inside function
+        function propertyValueValidator (val, i) {
+          let propName = i >= 0 ? `${id}[${i}]` : id
+          let isValid = false
+          let errors = []
+          for (let valueTypeId of This.getArray(prop['http://schema.org/rangeIncludes'])) {
+            let validator = typeof val === 'string' ? valueTypeId : 'rdfs:Class'
+            if (!This.validators[validator]) {
+              errors.push(`Type '${propName}' can't be validated due to input data type.`)
+              break
+            }
 
-          // Select validator according to type
-          if (types.includes('http://schema.org/DataType')) { // Basic data types
-            if (typeof value === 'string') validator = valueTypeId
-          } else if (types.includes('rdfs:Class')) {
-            validator = 'rdfs:Class'
-          } else {
-            // Type -> ID (Alias)
-            validator = 'rdfs:Class'
+            let result = This.validators[validator](val, context)
+            if (result === true || result.length === 0) {
+              isValid = true
+              break
+            }
+
+            // TODO validators must return matrix instead of boolean
+            if (typeof result !== 'boolean') errors = [...errors, ...result]
           }
 
-          if (!validator) {
-            errors.push(`Type '${id}' can't be validated due to input data type.`)
+          if (!isValid) {
+            return [`Property '${propName}' not valid because:`, errors]
           }
 
-          let result = this.validators[validator](value, context)
-          if (result === true || result.length === 0) {
-            isValid = true
-          } else {
-            errors = [...errors, ...result]
-          }
+          return [] // All ok, return 0 errors
         }
 
-        if (!isValid) {
-          return [`Property '${id}' not valid.`, errors]
+        if (Array.isArray(value)) { // when an array is valid value?
+          return [].concat.apply([], value.map(propertyValueValidator))
+        } else {
+          return [].concat(propertyValueValidator(value))
         }
-
-        return [] // All ok, return 0 errors
       },
       'http://schema.org/Date': value => {
         try {
@@ -103,7 +104,11 @@ module.exports = class SchemaValidator {
           this.validators['http://schema.org/Float'](value)
       },
       'http://schema.org/Integer': value => {
-        return Number.isInteger(+value) && parseInt(value).toString() === value.toString()
+        try {
+          return Number.isInteger(+value) && parseInt(value).toString() === value.toString()
+        } catch (err) {
+          return false
+        }
       },
       'http://schema.org/Float': value => {
         return !isNaN(value)
@@ -139,8 +144,14 @@ module.exports = class SchemaValidator {
     }
   }
 
-  validate(obj, context = '') {
-    let result = this.validators['rdfs:Class'](obj, context)
+  validate (obj, context = '') {
+    let result
+    try {
+      result = this.validators['rdfs:Class'](obj, context)
+    } catch (err) {
+      console.log('Excepción')
+      result = err
+    }
     console.log(result)
     return result
   }
@@ -163,8 +174,8 @@ module.exports = class SchemaValidator {
     console.log('test', test.length, test.length < 10 ? test : '---')
   }
 
-  // TODO Alias "@type": "http://id..."
-  // TODO Enumeration subtypes
-  // TODO supersededBy . Relates a term (i.e. a property, class or enumeration) to one that supersedes it.
+  // TODO inheritance from children ¿? (https://schema.org/Product  example 3 offers is AggregateOffer (child of Offer))
+  // TODO Enumeration subtypes: "rdfs:subClassOf": "http://schema.org/Enumeration"
+  // TODO supersededBy: Relates a term (i.e. a property, class or enumeration) to one that supersedes it.
   // TODO rdfs:subPropertyOf
 }
