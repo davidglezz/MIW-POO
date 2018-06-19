@@ -1,6 +1,5 @@
 body {
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
+    padding: 1.5rem 0 0 0;
 }
 
 .header,
@@ -58,7 +57,7 @@ body {
 }
 
 #obj_data {
-    height: 70vh;
+    height: calc(100vh - 334px);
     position: relative;
     overflow: visible !important;
 }
