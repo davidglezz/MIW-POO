@@ -27,39 +27,39 @@ $app->get('/', function (Request $request, Response $response, array $args) use 
     );
 });
 
-$app->get('/{entidad}', function (Request $request, Response $response, array $args) use ($api) {
+$app->get('/{entity}', function (Request $request, Response $response, array $args) use ($api) {
     return $response->withJSON(
-        $api->findEntities($args['entidad']),
+        $api->findEntities($args['entity']),
         200,
         JSON_UNESCAPED_UNICODE
     );
 });
 
-$app->get('/{entidad}/{id}', function (Request $request, Response $response, array $args) use ($api) {
+$app->get('/{entity}/{id}', function (Request $request, Response $response, array $args) use ($api) {
     return $response->withJSON(
-        $api->read($args['entidad'], $args['id']),
+        $api->read($args['entity'], $args['id']),
         200,
         JSON_UNESCAPED_UNICODE
     );
 });
 
-$app->post('/{entidad}', function (Request $request, Response $response, array $args) use ($api) {
+$app->post('/{entity}', function (Request $request, Response $response, array $args) use ($api) {
     return $response->withJSON(
-        $api->create($args['entidad'], $request->getParsedBody()),
+        $api->create($args['entity'], $request->getParsedBody()),
         200,
         JSON_UNESCAPED_UNICODE
     );
 });
 
-$app->put('/{entidad}/{id}', function (Request $request, Response $response, array $args) use ($api) {
+$app->put('/{entity}/{id}', function (Request $request, Response $response, array $args) use ($api) {
     return $response->withJSON(
-        $api->update($args['entidad'], $request->getParsedBody()),
+        $api->update($args['entity'], $request->getParsedBody()),
         200,
         JSON_UNESCAPED_UNICODE
     );
 });
 
-$app->delete('/{entidad}/{id}', function (Request $request, Response $response, array $args) use ($api) {
+$app->delete('/{entity}/{id}', function (Request $request, Response $response, array $args) use ($api) {
     return $response->withJSON(
         $api->delete($args['id']),
         200,
