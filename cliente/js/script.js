@@ -122,12 +122,7 @@ $(document).ready(function () {
       data: obj,
       success: function (result) {
         if (!result || result.error) {
-          if (Array.isArray(result.error)) {
-            var htmlErr = '<ul><li>' + result.error.join('</li><li>') + '</li></ul>';
-          } else {
-            var htmlErr = '' + result.error;
-          }
-          showError(htmlErr);
+          showError(Array.isArray(result.error) ? errorList(result.error) : ('' + result.error));
           return;
         }
         showSuccess('El objeto se guardó correctamente.');
@@ -135,6 +130,17 @@ $(document).ready(function () {
       }
     });
   });
+
+  function errorList(errors) {
+    function list(err) {
+      let html = '<ul>';
+      for (let e of err) {
+        html += '<li>' + (typeof e === 'string' ? e : list(e)) + '</li>'
+      }
+      return html + '</ul>'
+    }
+    return list(errors).replace('</li><li><ul>', '<ul>')
+  }
 
   $('#remove').on('click', function () {
     removeObject(id, function (success) {
