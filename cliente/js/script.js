@@ -116,7 +116,7 @@ $(document).ready(function () {
     }
 
     $.ajax({
-      url: api + type,
+      url: api + type + '/?_=' + Date.now(),
       type: 'POST',
       dataType: "json",
       data: obj,
