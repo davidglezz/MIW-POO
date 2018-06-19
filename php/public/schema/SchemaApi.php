@@ -61,6 +61,12 @@ class SchemaApi
 
     public function update($type, $id, $data)
     {
+        $errors = $this->validator->validate($data);
+        if (count($errors) > 0) {
+            return ['error' => $errors];
+        }
+
+        $data = json_encode($data);
         $sql = "UPDATE objects SET data = '$data' WHERE id = $id AND type = '$type' LIMIT 1";
         return ['success' => $this->db->exec($sql) !== false];
     }
