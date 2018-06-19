@@ -69,7 +69,7 @@ class SchemaValidator
             $valueType = $this->schema->get($valueTypeId);
             if (is_array($valueType['@type']) && array_search("http://schema.org/DataType", $valueType['@type']) !== false) {
                 if (!is_string($value)) {
-                    $errors[] = "DataType '$key' is not string.";
+                    $valueTypeErrors[] = "DataType '$key' is not string.";
                     continue;
                 }
 
@@ -79,13 +79,21 @@ class SchemaValidator
                     $valueTypeErrors[] = "'$key' is not valid $valueTypeId.";
                 }
             } else { // TODO Se asume class, verificar
-                $result = $this->validate($value, $context);
+                if (is_array($value)) {
+                    $result = $this->validate($value, $context);
+                } else {
+                    //$result[] = "Key '$key' is not array.";
+                    $result = [];
+                }
+
                 if (count($result) === 0) {
                     break;
                 }
+
                 $valueTypeErrors = array_merge($valueTypeErrors, $result);
             }
         }
+        return $valueTypeErrors;
     }
     
     public function validate(array $obj, string $context = '')
@@ -127,6 +135,7 @@ class SchemaValidator
                 // Validate property value
                 $propertyErrors = $this->validateValue($key, $value, $context);
                 if (count($propertyErrors) > 0) {
+                    $errors[] = "Property '$key' not valid:";
                     $errors = array_merge($errors, $propertyErrors);
                 }
             }
@@ -135,7 +144,7 @@ class SchemaValidator
     }
 
     /**
-     * A veces es un valor, otras veces un array de valores
+     * Unas veces es un valor, otras veces es un array de valores
      */
     private function getArray($obj) {
         return isset($obj['@id']) ? [$obj['@id']] : array_column($obj, '@id');
