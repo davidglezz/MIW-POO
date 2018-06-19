@@ -3,9 +3,86 @@ const url = require('url')
 module.exports = class SchemaValidator {
   constructor (schema) {
     this.schema = schema
+
     this.validators = {
-      'rdfs:Class': value => {
-        return true
+      'rdfs:Class': (obj, context = '') => {
+        // Type
+        if (!obj['@type']) return ['@type not found on input object.']
+        let type = obj['@type']
+
+        // Context
+        context = obj['@context'] || context
+        if (context && context[context.length - 1] !== '/') {
+          context += '/'
+        }
+
+        // Exist in the vocabulary?
+        let klass = this.schema.get(context + type)
+        if (!klass || klass['@type'] !== 'rdfs:Class') {
+          return [`Type '${type}' not found in the vocabulary.`]
+        }
+
+        // Properties
+        let errors = []
+        for (let [id, value] of Object.entries(obj)) {
+          if (id[0] !== '@') { // ignore @..
+            const propertyErrors = this.validators['rdf:Property'](id, value, context, type)
+            if (propertyErrors.length) {
+              errors = [...errors, ...propertyErrors]
+            }
+          }
+        }
+        return errors
+      },
+      'rdf:Property': (id, value, context, type) => {
+        // Is there property in the vocabulary?
+        let prop = this.schema.get(context + id)
+        if (!prop || prop['@type'] !== 'rdf:Property') {
+          return [`Property '${id}' not found in vocabulary.`]
+        }
+
+        // Does the property belong to the class/type/shape + Inheritance (Parents)?
+        let classes = this.schema.getSuperClasses(context + type)
+        let propertyClasses = this.getArray(prop['http://schema.org/domainIncludes'])
+        if (classes.filter(v => propertyClasses.indexOf(v) !== -1).length === 0) { // Intersection
+          return [`Property '${id}' not found in 'type'.`]
+        }
+
+        // Validate property value
+        let isValid = false
+        let errors = []
+        for (let valueTypeId of this.getArray(prop['http://schema.org/rangeIncludes'])) {
+          let valueType = this.schema.get(valueTypeId)
+          let types = typeof valueType['@type'] === 'string' ? [valueType['@type']] : valueType['@type']
+          let validator
+
+          // Select validator according to type
+          if (types.includes('http://schema.org/DataType')) { // Basic data types
+            if (typeof value === 'string') validator = valueTypeId
+          } else if (types.includes('rdfs:Class')) {
+            validator = 'rdfs:Class'
+          } else {
+            // Type -> ID (Alias)
+            validator = 'rdfs:Class'
+          }
+
+          if (!validator) {
+            errors.push(`Type '${id}' can't be validated due to input data type.`)
+          }
+
+          let result = this.validators[validator](value, context)
+          if (result === true || result.length === 0) {
+            isValid = true
+          } else {
+            errors = [...errors, ...result]
+          }
+        }
+
+        if (!isValid) {
+          return [`Property '${id}' not valid.`, errors]
+        }
+
+        return [] // All ok, return 0 errors
       },
       'http://schema.org/Date': value => {
         try {
@@ -62,78 +139,10 @@ module.exports = class SchemaValidator {
     }
   }
 
-  validateValue (key, value, context) {
-    let prop = this.schema.get(context + key)
-    let valueTypeErrors = []
-    for (let valueTypeId of this.getArray(prop['http://schema.org/rangeIncludes'])) {
-      let valueType = this.schema.get(valueTypeId)
-      if (Array.isArray(valueType['@type']) && valueType['@type'].includes('http://schema.org/DataType')) {
-        if (typeof value !== 'string') {
-          valueTypeErrors.push(`DataType '${key}' is not string.`)
-        } if (this.validators[valueTypeId](value)) {
-          break
-        } else {
-          valueTypeErrors.push(`'${key}' is not valid valueTypeId.`)
-        }
-      } else { // TODO Se asume class, verificar
-        let result = []
-        if (typeof value === 'object') {
-          result = this.validate(value, context)
-        } else {
-          // result[] = "Key 'key' is not array.";
-          // result = []
-        }
-
-        if (result.length === 0) {
-          break
-        }
-
-        valueTypeErrors = [...valueTypeErrors, ...result]
-      }
-    }
-    return valueTypeErrors
-  }
-
-  validate (obj, context = '') {
-    // Type
-    if (!obj['@type']) return ['@type not found on input object.']
-    let type = obj['@type']
-
-    // Context
-    context = obj['@context'] || context
-    if (context && context[context.length - 1] === '/') {
-      context += '/'
-    }
-
-    // Type + Inheritance
-    let classes = this.schema.getSuperClasses(context + type)
-    if (classes.length === 0) {
-      return [`Type '${type}' not found in schema.`]
-    }
-
-    // Properties
-    let errors = []
-    for (let [key, value] of Object.entries(obj)) {
-      if (key[0] === '@') continue // ignore @..
-
-      let prop = this.schema.get(context.key)
-      if (!prop || prop['@type'] !== 'rdf:Property') {
-        errors.push(`Property '${key}' not found in schema.`)
-        continue
-      }
-      // Its defined in the type/shape.
-      let propertyClasses = this.getArray(prop['http://schema.org/domainIncludes'])
-      if (classes.filter(v => propertyClasses.indexOf(v) !== -1).length === 0) { // Intersection
-        errors.push(`Property '${key}' not found in 'type'.`)
-        continue
-      }
-      // Validate property value
-      let propertyErrors = this.validateValue(key, value, context)
-      if (propertyErrors.length) {
-        errors = [...errors, `Property '${key}' not valid.`, ...propertyErrors]
-      }
-    }
-    return errors
+  validate(obj, context = '') {
+    let result = this.validators['rdfs:Class'](obj, context)
+    console.log(result)
+    return result
   }
 
   /**
@@ -141,6 +150,17 @@ module.exports = class SchemaValidator {
    */
   getArray (obj) {
     return !obj['@id'] ? obj.map(e => e['@id']) : [obj['@id']]
+  }
+
+  test () {
+    let test = Object.values(this.schema.graph)
+      .filter(e => !Object.keys(this.validators).includes(e['@type']))
+      .filter(e => e['@type'])
+      .filter(e => this.schema.graph[e['@type']])
+      .filter(e => this.schema.graph[e['@type']]['@type'] !== 'rdfs:Class')
+      .filter(e => !Object.keys(this.validators).includes(this.schema.graph[e['@type']]['@type']))
+
+    console.log('test', test.length, test.length < 10 ? test : '---')
   }
 
   // TODO Alias "@type": "http://id..."
