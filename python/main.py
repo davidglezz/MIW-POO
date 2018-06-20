@@ -1,9 +1,11 @@
 from flask import Flask
 from flask_restful import Api
+from flask_cors import CORS
 from SchemaApiController import SchemaList, SchemaEntity, SchemaObject
 
 app = Flask(__name__)
 api = Api(app)
+CORS(app)
 
 ## Actually setup the Api resource routing here
 api.add_resource(SchemaList, '/')
