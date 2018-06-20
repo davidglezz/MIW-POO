@@ -34,13 +34,13 @@ module.exports = class SchemaReader {
     // one parent
     if (klass['rdfs:subClassOf']['@id']) {
       let superSuper = this.getSuperClasses(klass['rdfs:subClassOf']['@id'])
-      return [...new Set(classes.concat(superSuper))] // Merge and unique
+      return [...new Set([...classes, ...superSuper])] // Merge and unique
     }
 
     // multiple parents
     for (let superClass of klass['rdfs:subClassOf']) {
       let superSuper = this.getSuperClasses(superClass['@id'])
-      classes = [...superSuper]
+      classes = [...classes, ...superSuper] // Merge
     }
 
     return [...new Set(classes)]
