@@ -23,7 +23,6 @@ module.exports = class SchemaController {
   async create (type, data) {
     let errors = this.validator.validate(data)
     if (errors.length > 0) return { 'error': errors }
-    this.repository.create(type, JSON.stringify(data))
     return { 'success': await this.repository.create(type, JSON.stringify(data)) }
   }
 
