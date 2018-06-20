@@ -85,6 +85,13 @@ module.exports = class SchemaValidator {
           return [].concat(propertyValueValidator(value))
         }
       },
+      'http://schema.org/DateTime': value => {
+        try {
+          return (new Date(value)).toISOString() === value
+        } catch (err) {
+          return false
+        }
+      },
       'http://schema.org/Date': value => {
         try {
           return (new Date(value)).toISOString().substring(0, 11).includes(value)
@@ -133,13 +140,6 @@ module.exports = class SchemaValidator {
       },
       'http://schema.org/True': value => {
         return value === 'True' || value === 'http://schema.org/True'
-      },
-      'http://schema.org/DateTime': value => {
-        try {
-          return (new Date(value)).toISOString() === value
-        } catch (err) {
-          return false
-        }
       }
     }
   }
