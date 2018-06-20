@@ -11,4 +11,4 @@ api.add_resource(SchemaEntity, '/<entity>')
 api.add_resource(SchemaObject, '/<entity>/<id>')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=8003)
