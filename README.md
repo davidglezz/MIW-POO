@@ -1,8 +1,9 @@
 # MIW-POO
 
-
-https://schema.org/version/latest/schema.jsonld
-
+Download schema vocabulary definition in jsonld format from:
+```
+wget https://schema.org/version/latest/schema.jsonld
+```
 
 ## Deploy the system
 
@@ -22,16 +23,23 @@ php -S 0.0.0.0:8001 php
 
 ### JavaScript Server
 ```
+cd nodejs
 npm install
 sudo npm i --save sqlite3 --unsafe-perm
-cd nodejs
+
 npm start
 or
 npm run dev
-
-
 ```
-
-sudo npm i -g npm --unsafe-perm
-
 ### Python Server
+Dependencies
+```
+pip install sqlite3
+pip install isodate
+pip install validators
+```
+Run:
+```
+cd python
+python .\main.py
+```
