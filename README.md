@@ -36,10 +36,15 @@ npm run dev
 ### Python Server
 Dependencies
 ```
+pip install Flask
 pip install sqlite3
 pip install isodate
 pip install validators
 pip install flask-cors
+
+or 
+
+pip install Flask isodate validators flask-cors
 ```
 Run:
 ```
