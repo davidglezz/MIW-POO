@@ -7,7 +7,7 @@ app = Flask(__name__)
 api = Api(app)
 CORS(app)
 
-## Actually setup the Api resource routing here
+# Actually setup the Api resource routing here
 api.add_resource(SchemaList, '/')
 api.add_resource(SchemaEntity, '/<entity>')
 api.add_resource(SchemaObject, '/<entity>/<id>')
