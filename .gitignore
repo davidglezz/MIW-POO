@@ -4,3 +4,4 @@ php/vendor/*
 */node_modules/*
 */__pycache__/*
 .vscode/
+data.db-journal
