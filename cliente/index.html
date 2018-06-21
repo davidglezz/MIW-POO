@@ -22,12 +22,15 @@
     <header class="header clearfix">
       <h1>Schema DB
         <small id="server-select" class="dropdown float-right">
-          <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">PHP</a>
+          <a class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">PHP</a>
           <div class="dropdown-menu">
             <a class="dropdown-item" href="#">PHP</a>
             <a class="dropdown-item" href="#">JavaScript</a>
             <a class="dropdown-item" href="#">Python</a>
           </div>
+          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#contact">
+            Contacto
+          </button>
         </small>
       </h1>
     </header>
@@ -118,9 +121,55 @@
     </main>
 
     <footer class="footer">
-      <p class="text-center">David González García</p>
+      <p class="text-center">David González García - uo212486</p>
     </footer>
 
+  </div>
+
+  <!-- Contact Form Modal -->
+  <div class="modal fade" id="contact" tabindex="-1" role="dialog" aria-labelledby="contact" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <form class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Formulario de contacto</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="name">Nombre</label>
+            <input type="text" class="form-control" id="name" pattern="[a-zA-Z\s]{3,}" required title="Nombre de una persona, sin números">
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" id="email" placeholder="name@example.com" required>
+          </div>
+          <div class="form-group">
+            <label for="phone">Teléfono</label>
+            <input type="text" class="form-control" id="phone" pattern="[+0-9]{6,12}" required title="Números"
+              placeholder="987654321">
+          </div>
+          <div class="form-group">
+            <label for="subject">Motivo</label>
+            <select class="form-control" id="subject">
+              <option>Estoy probando el formulario</option>
+              <option>Me gusta lo que veo</option>
+              <option>Algo no funciona correctamente</option>
+              <option>Otro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="message">Mensaje</label>
+            <textarea class="form-control" id="message" rows="5" required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Enviar</button>
+        </div>
+      </form>
+    </div>
   </div>
 
 </body>
