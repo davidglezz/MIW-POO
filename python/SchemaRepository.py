@@ -1,5 +1,6 @@
 import sqlite3
 
+
 class SchemaRepository(object):
     __instance = None
     def __new__(cls):
