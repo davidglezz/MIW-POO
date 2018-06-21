@@ -247,9 +247,10 @@ $(document).ready(function () {
   function removeObject(objId, callback) {
     id = 0;
 
-    if (confirm("Seguro?")) {
+    var passwd = prompt('Seguridad: Introduzca la contraseña:    (1234)', '');
+    if (passwd != null) {
       $.ajax({
-        url: api + type + '/' + objId,
+        url: api + type + '/' + objId + '?passwd=' + passwd,
         type: 'DELETE',
         success: function (result) {
           if (typeof callback === 'function') {
