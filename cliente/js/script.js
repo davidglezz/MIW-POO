@@ -115,11 +115,23 @@ $(document).ready(function () {
       return;
     }
 
+    let reqUrl
+    let reqMethod
+    if (id > 0) {
+      reqUrl = api + type + '/' + id + '?_=' + Date.now()
+      reqMethod = 'PUT'
+    } else {
+      reqUrl = api + type + '?_=' + Date.now()
+      reqMethod = 'POST'
+    }
+
     $.ajax({
-      url: api + type + '/?_=' + Date.now(),
-      type: 'POST',
+      url: reqUrl,
+      method: reqMethod,
+      contentType: 'application/json; charset=utf-8',
       dataType: "json",
-      data: obj,
+      cache : false,
+      data: JSON.stringify(obj),
       success: function (result) {
         if (!result || result.error) {
           showError(Array.isArray(result.error) ? errorList(result.error) : ('' + result.error));

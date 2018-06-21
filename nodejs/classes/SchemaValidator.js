@@ -45,7 +45,7 @@ module.exports = class SchemaValidator {
         // Does the property belong to the class/type/shape + Inheritance (in Parents)?
         let classes = this.schema.getSuperClasses(context + type)
         let propertyClasses = this.getArray(prop['http://schema.org/domainIncludes'])
-        if (classes.filter(v => propertyClasses.indexOf(v) !== -1).length === 0) { // Intersection
+        if (classes.filter(v => propertyClasses.indexOf(v) !== -1).length === 0) { // Intersection // TODO use includes and first
           return [`Property '${id}' not found in 'type'.`]
         }
 
@@ -82,7 +82,7 @@ module.exports = class SchemaValidator {
         if (Array.isArray(value)) { // when an array is valid value?
           return [].concat.apply([], value.map(propertyValueValidator))
         } else {
-          return [].concat(propertyValueValidator(value))
+          return propertyValueValidator(value)
         }
       },
       'http://schema.org/DateTime': value => {
