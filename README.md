@@ -37,7 +37,7 @@ Dependencies
 pip install sqlite3
 pip install isodate
 pip install validators
-pip install -U flask-cors
+pip install flask-cors
 ```
 Run:
 ```
