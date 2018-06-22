@@ -1,13 +1,17 @@
 # Programación Orientada a Objetos
 
 
-
-Download schema vocabulary definition in jsonld format from:
+Update schema vocabulary definition in jsonld format from:
 ```
 wget https://schema.org/version/latest/schema.jsonld
 ```
 
 ## Deploy the system
+git clone https://github.com/davidglezz/MIW-POO.git
+cd MIW-POO
+chmod +x deploy.sh
+./deploy.sh
+
 
 ### Client
 ```cd cliente```
