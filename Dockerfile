@@ -17,7 +17,7 @@ RUN npm i -g sqlite3 --unsafe-perm
 
 # Python
 RUN apt-get install -y python3 python3-pip
-RUN pip3 install Flask isodate validators flask-cors
+RUN pip3 install Flask flask-restful isodate validators flask-cors
 
 EXPOSE 8000-8003
 VOLUME ["/app"]
