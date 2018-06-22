@@ -8,11 +8,108 @@ class SchemaValidator
     protected $validators;
 
     public function __construct(SchemaReader $schema)
-    {
+    {s
         $this->schema = $schema;
         $this->validators = [
-            'rdfs:Class' => function($value) {
-                return true;
+            'rdfs:Class' => function($obj, $context = '') {
+                // Type
+                if (!array_key_exists('@type', $obj)) {
+                    return ['@type not found on input object.'];
+                }
+                $type = $obj['@type'];
+
+                // Context
+                $context = isset($obj['@context']) ? $obj['@context'] : $context;
+                if (!empty($context) && strrpos($context, '/') !== strlen($context) - 1) {
+                    $context .= '/';
+                }
+
+                // Exist in the vocabulary?
+                $klass = $this->schema->get($context.$type);
+                if (!$klass || (isset($klass['@type']) && $klass['@type'] !== 'rdfs:Class')) {
+                    return ["Type '$type' not found in the vocabulary."];
+                }
+
+                // Properties
+                $errors = [];
+                foreach ($obj as $id => $value) {
+                    if (substr($id, 0, 1) === '@') continue;  // ignore @..
+                    $propertyErrors = $this->validators['rdf:Property']($id, $value, $context, $type);
+                    if (count($propertyErrors) > 0) {
+                        //$errors[] = "Property '$id' not valid:";
+                        $errors = array_merge($errors, $propertyErrors);
+                    }
+                }
+                return $errors;
+            },
+            'rdf:Property' => function ($id, $value, $context, $type) {
+                // Is there property in the vocabulary?
+                $prop = $this->schema->get($context.$id);
+                if ($prop === null || !array_key_exists('@type', $prop) || $prop['@type'] !== 'rdf:Property') {
+                    return ["Property '$id' not found in vocabulary."];
+                }
+
+                // Does the property belong to the class/type/shape + Inheritance (in Parents)?
+                $classes = $this->schema->getSuperClasses($context.$type);
+                $propertyClasses = $this->getArray($prop['http://schema.org/domainIncludes']);
+                if (count(array_intersect($classes, $propertyClasses)) === 0) {
+                    return ["Property '$id' not found in '$type'."];
+                }
+
+                // Validate property value
+                $This = $this;
+                $propertyValueValidator = function ($val, $i = -1) use ($This, $id, $prop)
+                {
+                    $propName = $i >= 0 ? "$id[$i]" : $id;
+                    $isValid = false;
+                    $errors = [];
+                    foreach ($This->getArray($prop['http://schema.org/rangeIncludes']) as $valueTypeId) {
+                        $validator = is_string($val) ? $valueTypeId : 'rdfs:Class';
+                        
+                        if (!array_key_exists($validator, $This->validators)) {
+                            $isValid = true; // Considerar como correcto.
+                            // $errors[] = "Type '$propName' can't be validated due to input data type.";
+                            break;
+                        }
+
+                        // Extra type check for rdfs:Class
+
+                        if ($validator === 'rdfs:Class' && array_key_exists('@type', $val) && $context.$val['@type'] === $valueTypeId) {
+                            $realValueType = $context.$val['@type'];
+                            $errors[] = "Type '$realValueType' does not match the type '$valueTypeId' of the property.";
+                            continue;
+                        }
+
+                        $result = $This->validators[$validator]($val);
+                        if ($result === true || count($result) === 0) {
+                            $isValid = true;
+                            break;
+                        }
+
+                        // TODO validators must return array instead of boolean
+                        if (is_array($result)) {
+                            $errors = array_merge($errors, $result);
+                        } elseif (!$result) {
+                            $errors[] = "'$id' is not valid $valueTypeId.";
+                        }
+                    }
+
+                    if (!$isValid) {
+                        return ["Property '$propName' not valid because:", $errors];
+                    }
+
+                    return []; // All ok, return 0 errors
+                };
+
+                if (is_array($value)) {
+                    $errErr = [];
+                    foreach ($value as $val) {
+                        $errErr[] = $propertyValueValidator($val);
+                    }
+                    return array_merge(...$errErr);
+                } else {
+                    return $propertyValueValidator($value);
+                }
             },
             'http://schema.org/Date' => function($value) {
                 // A date value in <a href=\"http://en.wikipedia.org/wiki/ISO_8601\">ISO 8601 date format</a>.
@@ -60,87 +157,15 @@ class SchemaValidator
             }
         ];
     }
-
-    public function validateValue(string $key, $value, string $context = '', $in = null)
-    {
-        $prop = $this->schema->get($context.$key);
-        $valueTypeErrors = [];
-        foreach ($this->getArray($prop['http://schema.org/rangeIncludes']) as $valueTypeId) {
-            $valueType = $this->schema->get($valueTypeId);
-            if (is_array($valueType['@type']) && array_search("http://schema.org/DataType", $valueType['@type']) !== false) {
-                if (!is_string($value)) {
-                    $valueTypeErrors[] = "DataType '$key' is not string.";
-                    continue;
-                }
-
-                if ($this->validators[$valueTypeId]($value)) {
-                    break;
-                } else {
-                    $valueTypeErrors[] = "'$key' is not valid $valueTypeId.";
-                }
-            } else { // TODO Se asume class, verificar
-                if (is_array($value)) {
-                    $result = $this->validate($value, $context);
-                } else {
-                    //$result[] = "Key '$key' is not array.";
-                    $result = [];
-                }
-
-                if (count($result) === 0) {
-                    break;
-                }
-
-                $valueTypeErrors = array_merge($valueTypeErrors, $result);
-            }
-        }
-        return $valueTypeErrors;
-    }
     
     public function validate(array $obj, string $context = '')
     {
-        // Type
-        if (!array_key_exists('@type', $obj)) {
-            return ['@type not found on input object.'];
+        try {
+            $result = $this->validators['rdfs:Class']($obj, $context);
+        } catch (Exception $e) {
+            $result = false;
         }
-        $type = $obj['@type'];
-
-        // Context
-        $context = isset($obj['@context']) ? $obj['@context'] : $context;
-        if (!empty($context) && strrpos($context, '/') !== strlen($context) - 1) {
-            $context .= '/';
-        }
-
-        // Type + Inheritance
-        $classes = $this->schema->getSuperClasses($context.$type);
-        if (count($classes) === 0) {
-            return ["Type '$type' not found in schema."];
-        }
-
-        // Properties
-        $errors = [];
-        foreach ($obj as $key => $value) {
-            if (substr($key, 0, 1) !== '@') {
-                // Exist
-                $prop = $this->schema->get($context.$key);
-                if ($prop === null || !array_key_exists('@type', $prop) || $prop['@type'] !== 'rdf:Property') {
-                    $errors[] = "Property '$key' not found in schema.";
-                    continue;
-                }
-                // Its defined in the type.
-                $propertyClasses = $this->getArray($prop['http://schema.org/domainIncludes']);
-                if (count(array_intersect($classes, $propertyClasses)) === 0) {
-                    $errors[] = "Property '$key' not found in '$type'.";
-                    continue;
-                }
-                // Validate property value
-                $propertyErrors = $this->validateValue($key, $value, $context);
-                if (count($propertyErrors) > 0) {
-                    $errors[] = "Property '$key' not valid:";
-                    $errors = array_merge($errors, $propertyErrors);
-                }
-            }
-        }
-        return $errors;
+        return $result;
     }
 
     /**
