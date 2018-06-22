@@ -82,7 +82,11 @@ module.exports = class SchemaValidator {
             }
 
             // TODO validators must return array instead of boolean
-            if (typeof result !== 'boolean') errors = [...errors, ...result]
+            if (Array.isArray(result)) {
+              errors = [...errors, ...result]
+            } else if (!result) {
+              errors = [...errors, `'${id}' is not valid ${valueTypeId}.`]
+            }
           }
 
           if (!isValid) {
