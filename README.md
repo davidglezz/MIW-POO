@@ -24,7 +24,7 @@ Or
 ### Php Server
 ```
 cd php/public
-php -S 0.0.0.0:8001 php
+php -S 0.0.0.0:8001
 ```
 
 ### JavaScript Server

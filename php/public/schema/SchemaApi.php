@@ -67,7 +67,7 @@ class SchemaApi
         }
 
         $data = json_encode($data);
-        $sql = "UPDATE objects SET data = '$data' WHERE id = $id AND type = '$type' LIMIT 1";
+        $sql = "UPDATE objects SET data = '$data' WHERE id = $id AND type = '$type'";
         return ['success' => $this->db->exec($sql) !== false];
     }
 

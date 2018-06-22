@@ -53,7 +53,7 @@ $app->post('/{entity}', function (Request $request, Response $response, array $a
 
 $app->put('/{entity}/{id}', function (Request $request, Response $response, array $args) use ($api) {
     return $response->withJSON(
-        $api->update($args['entity'], $request->getParsedBody()),
+        $api->update($args['entity'], $args['id'], $request->getParsedBody()),
         200,
         JSON_UNESCAPED_UNICODE
     );
