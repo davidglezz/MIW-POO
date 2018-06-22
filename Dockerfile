@@ -6,11 +6,13 @@ WORKDIR /app
 RUN apt-get update && apt-get upgrade -y 
 
 # PHP
-RUN apt-get install -y php php-pdo-sqlite
+RUN export DEBCONF_NONINTERACTIVE_SEEN=true DEBIAN_FRONTEND=noninteractive && \
+  echo "Europe/Madrid" > /etc/timezone && \
+  apt-get install -y tzdata php php-pdo-sqlite
 #--no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 # NodeJs
-RUN apt-get install -y nodejs
+RUN apt-get install -y nodejs npm
 RUN npm i -g sqlite3 --unsafe-perm
 
 # Python
@@ -21,4 +23,3 @@ EXPOSE 8000-8003
 VOLUME ["/app"]
 
 CMD ["sh", "start.sh"]
-
