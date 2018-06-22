@@ -4,7 +4,7 @@ import json
 class SchemaReader:
     def __init__(self, filepath):
         try:
-            with open(filepath, 'r') as f:
+            with open(filepath, 'r', encoding='utf-8') as f:
                 data = json.load(f)
         except ValueError:
             raise ValueError('Decoding JSON has failed')
