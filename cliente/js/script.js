@@ -29,7 +29,6 @@ $(document).ready(function () {
     api = '//' + location.hostname + ':' + servers[selected] + '/'
     showSumary()
     $('#server-select .dropdown-toggle').text(selected)
-    showPage('summary')
     localStorage.setItem('api', selected);
   })
 
@@ -85,6 +84,7 @@ $(document).ready(function () {
   $('#entity tbody').on('click', '.action-remove', function () {
     var $tr = $(this).closest('tr');
     removeObject($tr.find('td:first').text(), function (success) {
+      console.log(success)
       if (success) {
         $tr.children('td')
           .animate({ padding: 0 })
@@ -204,7 +204,7 @@ $(document).ready(function () {
   }
 
   function showSumary() {
-    $.get(api, function (response) {
+    $.get(api + '?_=' + Date.now(), function (response) {
       var html = '';
       if (response.forEach && response.length) {
         response.forEach(function (row) {
@@ -214,6 +214,7 @@ $(document).ready(function () {
         html += `<tr><td colspan="2" class="text-muted">Sin resultados</td></tr>`;
       }
       $('#summary tbody').html(html);
+      showPage('summary')
     });
   }
 
@@ -224,7 +225,7 @@ $(document).ready(function () {
             <button type="button" class="btn btn-outline-danger btn-sm action-remove">Eliminar</button>`;
 
     // Load entity summary
-    $.get(api + type, function (response) {
+    $.get(api + type + '?_=' + Date.now(), function (response) {
       var html = '';
       response.forEach(function (row) {
         html += `<tr><td>${row.id}</td><td>${row.size}</td><td>${actions}</td></tr>`;
@@ -239,7 +240,7 @@ $(document).ready(function () {
   function loadObject(objId, callback) {
     // Load object data to editor
     id = objId;
-    $.get(api + type + '/' + id, function (response) {
+    $.get(api + type + '/' + id + '?_=' + Date.now(), function (response) {
       if (response && response.data) {
         try {
           editor.update(JSON.stringify(JSON.parse(response.data), null, 4));
@@ -265,14 +266,13 @@ $(document).ready(function () {
         url: api + type + '/' + objId + '?passwd=' + passwd,
         type: 'DELETE',
         success: function (result) {
-          if (typeof callback === 'function') {
+          if (result && result.error) {
+            showError(result.error);
+          } else if (typeof callback === 'function') {
             callback(result && result.success);
           }
         }
       });
     }
   }
-  
 })
-
-
