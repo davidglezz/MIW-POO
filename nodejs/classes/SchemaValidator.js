@@ -6,7 +6,7 @@ module.exports = class SchemaValidator {
 
     this.validators = {
       'rdfs:Class': (obj, context = '') => {
-        console.log('rdfs:Class', obj)
+        console.log('rdfs:Class', obj['@type'])
         // Type
         if (!obj['@type']) return ['@type not found on input object.']
         let type = obj['@type']
@@ -56,10 +56,23 @@ module.exports = class SchemaValidator {
           let isValid = false
           let errors = []
           for (let valueTypeId of This.getArray(prop['http://schema.org/rangeIncludes'])) {
+            // let valueType = This.schema.get(valueTypeId)
+            // let types = typeof valueType['@type'] === 'string' ? [valueType['@type']] : valueType['@type']
+            // if (types.includes('http://schema.org/DataType')) // Basic data types
+            
             let validator = typeof val === 'string' ? valueTypeId : 'rdfs:Class'
             if (!This.validators[validator]) {
-              errors.push(`Type '${propName}' can't be validated due to input data type.`)
+              console.log('Sin implementar:', validator, val)
+              isValid = true // Considerar como correcto.
+              // errors.push(`Type '${propName}' can't be validated due to input data type.`)
               break
+            }
+            
+            // Extra type check for rdfs:Class
+            let realValueType = context + val['@type']
+            if (validator === 'rdfs:Class' && realValueType !== valueTypeId) {
+              errors.push(`Type '${realValueType.re}' does not match the type '${valueTypeId}' of the property.`)
+              continue
             }
 
             let result = This.validators[validator](val, context)
@@ -68,7 +81,7 @@ module.exports = class SchemaValidator {
               break
             }
 
-            // TODO validators must return matrix instead of boolean
+            // TODO validators must return array instead of boolean
             if (typeof result !== 'boolean') errors = [...errors, ...result]
           }
 
@@ -161,17 +174,6 @@ module.exports = class SchemaValidator {
    */
   getArray (obj) {
     return !obj['@id'] ? obj.map(e => e['@id']) : [obj['@id']]
-  }
-
-  test () {
-    let test = Object.values(this.schema.graph)
-      .filter(e => !Object.keys(this.validators).includes(e['@type']))
-      .filter(e => e['@type'])
-      .filter(e => this.schema.graph[e['@type']])
-      .filter(e => this.schema.graph[e['@type']]['@type'] !== 'rdfs:Class')
-      .filter(e => !Object.keys(this.validators).includes(this.schema.graph[e['@type']]['@type']))
-
-    console.log('test', test.length, test.length < 10 ? test : '---')
   }
 
   // TODO inheritance from children ¿? (https://schema.org/Product  example 3 offers is AggregateOffer (child of Offer))
