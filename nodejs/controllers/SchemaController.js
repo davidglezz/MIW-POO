@@ -36,8 +36,10 @@ module.exports = class SchemaController {
     return { 'success': await this.repository.update(type, id, JSON.stringify(data)) }
   }
 
-  delete (id) {
-    return this.repository.delete(id)
+  async delete (id, passwd) {
+    if (passwd !== '1234') return { 'error': 'Contraseña incorrecta' }
+    let success = await this.repository.delete(id)
+    return success === true ? {success} : {'error': success}
   }
 
   findEntities (type) {

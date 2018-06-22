@@ -53,7 +53,7 @@ module.exports = class SchemaApiRoutes {
   }
 
   async deleteEntityId (req, res) {
-    res.json(await this.controller.delete(req.params.id)
+    res.json(await this.controller.delete(req.params.id, req.query.passwd)
       .catch(error => ({
         error
       })))
