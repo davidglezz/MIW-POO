@@ -3,13 +3,13 @@ $(document).ready(function () {
 
   var servers = {
     'PHP': 8001,
-    'JavaScript': 8002,
+    'NodeJs': 8002,
     'Python': 8003,
   }
   var api = (function () {
       var saved = localStorage.getItem('api')
       if (!saved) {
-        return '//' + location.hostname + ':8001/'
+        return '//' + location.hostname + ':8002/'
       }
       $('#server-select .dropdown-toggle').text(saved)
       return '//' + location.hostname + ':' + servers[saved] + '/'
