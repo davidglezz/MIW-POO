@@ -8,7 +8,7 @@ class SchemaValidator
     protected $validators;
 
     public function __construct(SchemaReader $schema)
-    {s
+    {
         $this->schema = $schema;
         $this->validators = [
             'rdfs:Class' => function($obj, $context = '') {
