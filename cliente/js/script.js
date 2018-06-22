@@ -175,12 +175,13 @@ $(document).ready(function () {
   // Botón atras
   $('#back2summary').on('click', function () {
     type = '';
-    showPage('summary');
+    showSumary()
   });
 
   // Botón atras
   $('#back2entity').on('click', function () {
-    showPage(type ? 'entity' : 'summary');
+    if (type) showEntitySumary(type)
+    else showSumary()
   });
 
   // Algunas funciones para no repetir código

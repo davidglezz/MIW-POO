@@ -71,7 +71,7 @@ module.exports = class SchemaValidator {
             // Extra type check for rdfs:Class
             let realValueType = context + val['@type']
             if (validator === 'rdfs:Class' && realValueType !== valueTypeId) {
-              errors.push(`Type '${realValueType.re}' does not match the type '${valueTypeId}' of the property.`)
+              errors.push(`Type '${realValueType}' does not match the type '${valueTypeId}' of the property.`)
               continue
             }
 
