@@ -58,7 +58,7 @@ class SchemaValidator
 
                 // Validate property value
                 $This = $this;
-                $propertyValueValidator = function ($val, $i = -1) use ($This, $id, $prop)
+                $propertyValueValidator = function ($val, $i = -1) use ($This, $id, $prop, $context)
                 {
                     $propName = $i >= 0 ? "$id[$i]" : $id;
                     $isValid = false;
@@ -73,11 +73,14 @@ class SchemaValidator
                         }
 
                         // Extra type check for rdfs:Class
-
-                        if ($validator === 'rdfs:Class' && array_key_exists('@type', $val) && $context.$val['@type'] === $valueTypeId) {
+                        if ($validator === 'rdfs:Class' && isset($val['@type'])) {
                             $realValueType = $context.$val['@type'];
-                            $errors[] = "Type '$realValueType' does not match the type '$valueTypeId' of the property.";
-                            continue;
+                            $expectedTypes = $This->schema->getSuperClasses($valueTypeId);
+
+                            if (!in_array($realValueType, $expectedTypes)) {
+                                $errors[] = "Type '$realValueType' does not match the type '$valueTypeId' of the property.";
+                                continue;
+                            }
                         }
 
                         $result = $This->validators[$validator]($val);
