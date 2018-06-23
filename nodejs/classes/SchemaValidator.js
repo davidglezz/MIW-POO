@@ -50,18 +50,17 @@ module.exports = class SchemaValidator {
         }
 
         // Validate property value
-        const This = this // Use this inside function
-        function propertyValueValidator (val, i) {
+        const propertyValueValidator = (val, i) => {
           let propName = i >= 0 ? `${id}[${i}]` : id
           let isValid = false
           let errors = []
-          for (let valueTypeId of This.getArray(prop['http://schema.org/rangeIncludes'])) {
-            // let valueType = This.schema.get(valueTypeId)
+          for (let valueTypeId of this.getArray(prop['http://schema.org/rangeIncludes'])) {
+            // let valueType = this.schema.get(valueTypeId)
             // let types = typeof valueType['@type'] === 'string' ? [valueType['@type']] : valueType['@type']
             // if (types.includes('http://schema.org/DataType')) // Basic data types
             
             let validator = typeof val === 'string' ? valueTypeId : 'rdfs:Class'
-            if (!This.validators[validator]) {
+            if (!this.validators[validator]) {
               console.log('Sin implementar:', validator, val)
               isValid = true // Considerar como correcto.
               // errors.push(`Type '${propName}' can't be validated due to input data type.`)
@@ -69,13 +68,17 @@ module.exports = class SchemaValidator {
             }
             
             // Extra type check for rdfs:Class
-            let realValueType = context + val['@type']
-            if (validator === 'rdfs:Class' && realValueType !== valueTypeId) {
-              errors.push(`Type '${realValueType}' does not match the type '${valueTypeId}' of the property.`)
-              continue
+            if (validator === 'rdfs:Class') {
+              let realValueType = context + val['@type']
+              let expectedTypes = this.schema.getSuperClasses(valueTypeId)
+
+              if (!expectedTypes.includes(valueTypeId)) {
+                errors.push(`Type '${realValueType}' does not match the type '${valueTypeId}' of the property.`)
+                continue
+              }
             }
 
-            let result = This.validators[validator](val, context)
+            let result = this.validators[validator](val, context)
             if (result === true || result.length === 0) {
               isValid = true
               break

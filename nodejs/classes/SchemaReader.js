@@ -43,6 +43,8 @@ module.exports = class SchemaReader {
       classes = [...classes, ...superSuper] // Merge
     }
 
+    // TODO recursive parents parents
+
     return [...new Set(classes)]
   }
 
